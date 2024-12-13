@@ -58,7 +58,7 @@ const GraphWidget = ({
             </div>
             <div className="text-5xl font-regular">{sumValue}</div>
           </div>
-          <Graph data={data} />
+          {!!data && <Graph data={data} />}
           <div className="px-2.5 flex flex-col gap-4">
             <div className="border"></div>
             <div className="flex justify-between items-center">

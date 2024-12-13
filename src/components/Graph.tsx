@@ -12,15 +12,13 @@ const BACKGROUND = '#C1F4C5';
 const GRADIENT_DARK = '#4BDC55';
 const GRADIENT_LIGHT = '#BEF5C2';
 
-const AXIS = '#F3F5F8';
-
-const calculateOpacity = (height, maxHeight) => {
+const calculateOpacity = (height: number, maxHeight: number) => {
   const minOpacity = 0.3;
   const maxOpacity = 1;
   return minOpacity + (height / maxHeight) * (maxOpacity - minOpacity);
 };
 
-const CustomTooltip = ({ payload }) => {
+const CustomTooltip = ({ payload }: { payload: any }) => {
   if (payload && payload.length) {
     const data = payload[0].payload;
     const timestamp = data.timestamp;
@@ -105,7 +103,7 @@ const Graph = ({ data }: { data: ApiResponse }) => {
           fill="url(#gradient)"
           stroke={BORDER}
           shape={(props: any) => {
-            const { x, y, width, height, fill, index } = props;
+            const { x, y, width, height, index } = props;
 
             return (
               <>
@@ -134,7 +132,7 @@ const Graph = ({ data }: { data: ApiResponse }) => {
               </>
             );
           }}
-          activeBar={(props) => {
+          activeBar={(props: any) => {
             const { x, y, width, height } = props;
             return (
               <Rectangle
