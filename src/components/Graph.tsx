@@ -6,6 +6,8 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { ApiResponse } from '@/utilities/types';
+import { useMemo } from 'react';
+import CustomTooltip from './CustomTooltip';
 
 const BORDER = '#66C56B';
 const BACKGROUND = '#C1F4C5';
@@ -18,40 +20,28 @@ const calculateOpacity = (height: number, maxHeight: number) => {
   return minOpacity + (height / maxHeight) * (maxOpacity - minOpacity);
 };
 
-const CustomTooltip = ({ payload }: { payload: any }) => {
-  if (payload && payload.length) {
-    const data = payload[0].payload;
-    const timestamp = data.timestamp;
-
-    return (
-      <div
-        className="custom-tooltip"
-        style={{
-          borderRadius: '8px',
-          backgroundColor: '#fff',
-          border: '1px solid #ddd',
-          boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
-          padding: '10px',
-        }}
-      >
-        <p>
-          Date:{' '}
-          {new Date(timestamp).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-          })}
-        </p>
-        <p>{`Customers: ${payload[0].value}`}</p>
-      </div>
-    );
-  }
-
-  return null;
-};
-
 const Graph = ({ data }: { data: ApiResponse }) => {
   const maxValue = data ? Math.max(...data.map((itm) => itm.value)) : 0;
+
+  const gradients = useMemo(() => {
+    return data.map((entry, index) => {
+      const opacity = calculateOpacity(entry.value, maxValue);
+      return (
+        <linearGradient
+          key={`gradient-${index}`}
+          id={`gradient-${index}`}
+          x1="0"
+          y1="0"
+          x2="0"
+          y2="1"
+        >
+          <stop offset="0%" stopColor={GRADIENT_DARK} stopOpacity={opacity} />
+          <stop offset="100%" stopColor={GRADIENT_LIGHT} stopOpacity={1} />
+        </linearGradient>
+      );
+    });
+  }, [data, maxValue]);
+
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={data}>
@@ -64,33 +54,7 @@ const Graph = ({ data }: { data: ApiResponse }) => {
             <stop offset="0%" stopColor={BACKGROUND} stopOpacity={1} />
             <stop offset="100%" stopColor={GRADIENT_DARK} stopOpacity={1} />
           </linearGradient>
-          {data.map((entry, index) => {
-            // Dynamically calculate opacity
-            const height = entry.value;
-            const opacity = calculateOpacity(height, maxValue);
-
-            return (
-              <linearGradient
-                key={`gradient-${index}`}
-                id={`gradient-${index}`}
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="1"
-              >
-                <stop
-                  offset="0%"
-                  stopColor={GRADIENT_DARK}
-                  stopOpacity={opacity}
-                />
-                <stop
-                  offset="100%"
-                  stopColor={GRADIENT_LIGHT}
-                  stopOpacity={1}
-                />
-              </linearGradient>
-            );
-          })}
+          {gradients}
         </defs>
 
         <Tooltip
@@ -102,6 +66,7 @@ const Graph = ({ data }: { data: ApiResponse }) => {
           dataKey="value"
           fill="url(#gradient)"
           stroke={BORDER}
+          //there is an issue on github related to shape props
           shape={(props: any) => {
             const { x, y, width, height, index } = props;
 
@@ -132,6 +97,7 @@ const Graph = ({ data }: { data: ApiResponse }) => {
               </>
             );
           }}
+          //there is an issue on github related to shape props
           activeBar={(props: any) => {
             const { x, y, width, height } = props;
             return (

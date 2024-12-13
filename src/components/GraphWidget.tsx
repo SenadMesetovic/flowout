@@ -8,24 +8,29 @@ import Info from './../../public/info.svg';
 import loading from './../../public/loading.gif';
 import Image from 'next/image';
 import { calculateTrend } from '@/utilities/trendingCalc';
+import { useMemo } from 'react';
+import Error from 'next/error';
+import Loader from './Loader';
 
 const GraphWidget = ({
   data = undefined,
   onRefresh,
   isFetching,
   isLoading,
+  error,
 }: {
   data?: ApiResponse;
   onRefresh: () => void;
   isFetching: boolean;
   isLoading: boolean;
+  error?: string;
 }) => {
-  const sumValue = data ? data.reduce((sum, itm) => sum + itm.value, 0) : 0;
-  const { formattedStartDate, formattedEndDate } = data
-    ? formatDateRange(data)
-    : { formattedStartDate: '', formattedEndDate: '' };
+  const sumValue = useMemo(
+    () => (data ? data.reduce((sum, itm) => sum + itm.value, 0) : 0),
+    [data],
+  );
 
-  const trend = data ? (calculateTrend(data) ?? 0) : 0;
+  const trend = useMemo(() => (data ? (calculateTrend(data) ?? 0) : 0), [data]);
 
   const trendColor =
     trend > 0
@@ -34,12 +39,32 @@ const GraphWidget = ({
         ? 'bg-red-100 text-[#D32F2F]'
         : 'bg-gray-100 text-gray-500';
 
+  const { formattedStartDate, formattedEndDate } = data
+    ? formatDateRange(data)
+    : { formattedStartDate: '', formattedEndDate: '' };
+
   return (
     <div className="flex flex-col bg-white h-[350px] w-[440px] min-w-[400px] rounded-2xl px-5 py-7 gap-4">
       {isLoading ? (
-        <div className="flex items-center justify-center h-full">
-          <Image src={loading} alt="my gif" height={30} width={30} />
-        </div>
+        <Loader />
+      ) : error ? (
+        isFetching ? (
+          <Loader />
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full">
+            <p className="text-red-400  text-center mb-4">
+              {error || 'An error occurred. Please try again.'}
+            </p>
+            <button
+              onClick={onRefresh}
+              className={
+                'px-4 py-2 rounded-lg  text-red-400 h-10 w-20 flex items-center justify-center hover:bg-gray-100'
+              }
+            >
+              Retry
+            </button>
+          </div>
+        )
       ) : (
         <>
           <div className="px-2.5">
@@ -53,7 +78,7 @@ const GraphWidget = ({
 
               <button
                 onClick={!isFetching ? onRefresh : () => {}}
-                className="text-gray-400 w-8 rounded-lg hover:bg-gray-100 border border-2  aspect-square flex items-center justify-center"
+                className="text-gray-400 w-8 rounded-lg hover:bg-gray-100 border border-2 aspect-square flex items-center justify-center"
               >
                 {isFetching ? (
                   <Image src={loading} alt="my gif" height={18} width={18} />

@@ -1,19 +1,24 @@
 import { DataPoint } from './types';
 
 export function calculateTrend(data: DataPoint[]): number | null {
-  if (!data || data.length < 2) {
-    console.error('Insufficient data to calculate the trend.');
+  if (!data || data.length < 7) {
+    console.error(
+      'At least 7 data points are required to calculate the trend.',
+    );
     return null;
   }
 
-  const startValue = data[0].value;
-  const endValue = data[data.length - 1].value;
+  const startAverage =
+    data.slice(0, 3).reduce((sum, point) => sum + point.value, 0) / 3;
 
-  if (startValue === 0) {
-    console.error('Start value is zero, trend cannot be calculated.');
+  const endAverage =
+    data.slice(-3).reduce((sum, point) => sum + point.value, 0) / 3;
+
+  if (startAverage === 0) {
+    console.error('Start average is zero, trend cannot be calculated.');
     return null;
   }
 
-  const trend = ((endValue - startValue) / startValue) * 100;
+  const trend = ((endAverage - startAverage) / startAverage) * 100;
   return parseFloat(trend.toFixed(2));
 }
