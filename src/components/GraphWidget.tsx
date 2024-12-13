@@ -8,9 +8,9 @@ import Info from './../../public/info.svg';
 import loading from './../../public/loading.gif';
 import Image from 'next/image';
 import { calculateTrend } from '@/utilities/trendingCalc';
-import { useMemo } from 'react';
-import Error from 'next/error';
+import { useMemo, useState } from 'react';
 import Loader from './Loader';
+import RegularTooltip from './RegularTooltip';
 
 const GraphWidget = ({
   data = undefined,
@@ -25,6 +25,8 @@ const GraphWidget = ({
   isLoading: boolean;
   error?: string;
 }) => {
+  const [showTooltip, setShowTooltip] = useState(false);
+
   const sumValue = useMemo(
     () => (data ? data.reduce((sum, itm) => sum + itm.value, 0) : 0),
     [data],
@@ -34,9 +36,9 @@ const GraphWidget = ({
 
   const trendColor =
     trend > 0
-      ? 'bg-green-100 text-[#319E3B]'
+      ? 'bg-green-100 text-green-600'
       : trend < 0
-        ? 'bg-red-100 text-[#D32F2F]'
+        ? 'bg-red-100 text-red-700'
         : 'bg-gray-100 text-gray-500';
 
   const { formattedStartDate, formattedEndDate } = data
@@ -71,8 +73,15 @@ const GraphWidget = ({
             <div className="flex justify-between items-center">
               <div className="flex gap-4">
                 <div className="text-xl font-regular">Total Customers</div>
-                <div className="w-8 rounded-lg bg-gray-100  aspect-square flex items-center justify-center">
+                <div
+                  className="w-8 rounded-lg bg-gray-100 aspect-square flex items-center justify-center relative"
+                  onMouseEnter={() => setShowTooltip(true)}
+                  onMouseLeave={() => setShowTooltip(false)}
+                >
                   <Info />
+                  {showTooltip && (
+                    <RegularTooltip message="This is the total number of customers." />
+                  )}
                 </div>
               </div>
 

@@ -6,22 +6,12 @@ import {
 
 const CustomTooltip = ({ payload }: TooltipProps<ValueType, NameType>) => {
   if (payload && payload.length) {
-    console.log(payload);
     const data = payload[0].payload;
     const timestamp = data.timestamp;
 
     return (
-      <div
-        className="custom-tooltip"
-        style={{
-          borderRadius: '8px',
-          backgroundColor: '#fff',
-          border: '1px solid #ddd',
-          boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
-          padding: '10px',
-        }}
-      >
-        <p>
+      <div className="custom-tooltip bg-white border border-gray-300 shadow-lg p-4 rounded-lg">
+        <p className="text-sm">
           Date:{' '}
           {new Date(timestamp).toLocaleDateString('en-US', {
             year: 'numeric',
@@ -29,7 +19,7 @@ const CustomTooltip = ({ payload }: TooltipProps<ValueType, NameType>) => {
             day: 'numeric',
           })}
         </p>
-        <p>{`Customers: ${payload[0].value}`}</p>
+        <p className="text-sm">{`Customers: ${payload[0].value}`}</p>
       </div>
     );
   }

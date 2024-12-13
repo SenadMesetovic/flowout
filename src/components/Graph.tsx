@@ -9,10 +9,13 @@ import { ApiResponse } from '@/utilities/types';
 import { useMemo } from 'react';
 import CustomTooltip from './CustomTooltip';
 
-const BORDER = '#66C56B';
-const BACKGROUND = '#C1F4C5';
-const GRADIENT_DARK = '#4BDC55';
-const GRADIENT_LIGHT = '#BEF5C2';
+import resolveConfig from 'tailwindcss/resolveConfig';
+import tailwindConfig from '../../tailwind.config';
+
+// Resolve the full Tailwind config
+const fullConfig = resolveConfig(tailwindConfig);
+
+const COLORS = fullConfig.theme.colors;
 
 const calculateOpacity = (height: number, maxHeight: number) => {
   const minOpacity = 0.3;
@@ -22,7 +25,6 @@ const calculateOpacity = (height: number, maxHeight: number) => {
 
 const Graph = ({ data }: { data: ApiResponse }) => {
   const maxValue = data ? Math.max(...data.map((itm) => itm.value)) : 0;
-
   const gradients = useMemo(() => {
     return data.map((entry, index) => {
       const opacity = calculateOpacity(entry.value, maxValue);
@@ -35,8 +37,16 @@ const Graph = ({ data }: { data: ApiResponse }) => {
           x2="0"
           y2="1"
         >
-          <stop offset="0%" stopColor={GRADIENT_DARK} stopOpacity={opacity} />
-          <stop offset="100%" stopColor={GRADIENT_LIGHT} stopOpacity={1} />
+          <stop
+            offset="0%"
+            stopColor={COLORS.gradientDark}
+            stopOpacity={opacity}
+          />
+          <stop
+            offset="100%"
+            stopColor={COLORS.gradientLight}
+            stopOpacity={1}
+          />
         </linearGradient>
       );
     });
@@ -47,12 +57,20 @@ const Graph = ({ data }: { data: ApiResponse }) => {
       <BarChart data={data}>
         <defs>
           <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={GRADIENT_DARK} stopOpacity={1} />
-            <stop offset="100%" stopColor={GRADIENT_LIGHT} stopOpacity={1} />
+            <stop offset="0%" stopColor={COLORS.gradientDark} stopOpacity={1} />
+            <stop
+              offset="100%"
+              stopColor={COLORS.gradientLight}
+              stopOpacity={1}
+            />
           </linearGradient>
           <linearGradient id="topGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={BACKGROUND} stopOpacity={1} />
-            <stop offset="100%" stopColor={GRADIENT_DARK} stopOpacity={1} />
+            <stop offset="0%" stopColor={COLORS.background} stopOpacity={1} />
+            <stop
+              offset="100%"
+              stopColor={COLORS.gradientDark}
+              stopOpacity={1}
+            />
           </linearGradient>
           {gradients}
         </defs>
@@ -65,7 +83,7 @@ const Graph = ({ data }: { data: ApiResponse }) => {
         <Bar
           dataKey="value"
           fill="url(#gradient)"
-          stroke={BORDER}
+          stroke={COLORS.border}
           //there is an issue on github related to shape props
           shape={(props: any) => {
             const { x, y, width, height, index } = props;
@@ -78,8 +96,8 @@ const Graph = ({ data }: { data: ApiResponse }) => {
                   radius={[10, 10, 11, 11]}
                   width={width}
                   height={height}
-                  fill={BACKGROUND}
-                  stroke={BORDER}
+                  fill={COLORS.background}
+                  stroke={COLORS.border}
                   strokeWidth={2}
                   style={{ cursor: 'pointer' }}
                 />
@@ -107,8 +125,8 @@ const Graph = ({ data }: { data: ApiResponse }) => {
                 width={width}
                 height={height}
                 radius={[10, 10, 10, 10]}
-                fill={BACKGROUND}
-                stroke={BORDER}
+                fill={COLORS.background}
+                stroke={COLORS.border}
                 strokeWidth={2}
                 style={{ cursor: 'pointer' }}
               />
